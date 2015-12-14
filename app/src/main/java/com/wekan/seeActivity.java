@@ -31,7 +31,7 @@ public class seeActivity extends AbstractActivity {
      */
     private static final int REQUEST_READ_CONTACTS = 0;
 
-    private final double EARTH_RADIUS = 6378137.0;
+
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -59,19 +59,13 @@ public class seeActivity extends AbstractActivity {
         startRotationSensor();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
 
-    private double getDistance(Position p1, Position p2) {
-        double radLat1 = (p1.x * Math.PI / 180.0);
-        double radLat2 = (p2.x * Math.PI / 180.0);
-        double a = radLat1 - radLat2;
-        double b = (p1.y - p2.y) * Math.PI / 180.0;
-        double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2)
-                + Math.cos(radLat1) * Math.cos(radLat2)
-                * Math.pow(Math.sin(b / 2), 2)));
-        s = s * EARTH_RADIUS;
-        s = Math.round(s * 10000) / 10000;
-        return s;
     }
+
+
 
     private void initGps() {
         lm = (LocationManager) getSystemService(LOCATION_SERVICE);

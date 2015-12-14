@@ -65,6 +65,9 @@ public abstract class AbstractShap {
     public AbstractShap() {
         GLES20.glEnable(GLES20.GL_CULL_FACE);
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+        Matrix.setIdentityM(mModelMatrix, 0);
+        Matrix.setIdentityM(mViewMatrix, 0);
+        Matrix.setIdentityM(mProjectionMatrix, 0);
     }
 
     public int initProgram() {
@@ -177,6 +180,7 @@ public abstract class AbstractShap {
         final float top = 1.0f;
         final float near = 1.0f;
         final float far = 10.0f;
+//        Matrix.orthoM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
         Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
     }
 
@@ -193,7 +197,7 @@ public abstract class AbstractShap {
         // Position the eye behind the origin.
         final float eyeX = 0.0f;
         final float eyeY = 0.0f;
-        final float eyeZ = 5f;
+        final float eyeZ = 5.f;
 
         // We are looking toward the distance
         final float lookX = 0.0f;
