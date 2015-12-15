@@ -25,7 +25,7 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
     private SurfaceHolder mHolder;
     private Camera mCamera;
 
-    public void init(Position targetPisition) {
+    public void init() {
         mCamera = getCameraInstance();
         // 安装一个SurfaceHolder.Callback，
         // 这样创建和销毁底层surface时能够获得通知。

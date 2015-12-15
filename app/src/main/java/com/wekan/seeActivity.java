@@ -10,6 +10,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.opengl.Matrix;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.view.View;
@@ -66,7 +67,6 @@ public class seeActivity extends AbstractActivity {
     }
 
 
-
     private void initGps() {
         lm = (LocationManager) getSystemService(LOCATION_SERVICE);
         Criteria criteria = new Criteria();
@@ -90,10 +90,13 @@ public class seeActivity extends AbstractActivity {
         displayView = (WekanView) findViewById(R.id.display_view);
         cameraView = (CameraSurfaceView) findViewById(R.id.camera_view);
         resetBtn = (Button) findViewById(R.id.resetBtn);
-        //天安门的位置
+        //target天安门的位置
         targetPostion = new Position(116.403694, 39.916042, 0.0);
-        displayView.init(targetPostion);
-        cameraView.init(targetPostion);
+        //西二旗地铁站
+        targetPostion = new Position(116.312426, 40.05889, 0.0);
+        //百度大厦
+        displayView.init(new Position(116.307396, 40.057012, 0.0), targetPostion);
+        cameraView.init();
 //        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 //            showMessage("GPS permiss denied");
 //        } else {
@@ -120,22 +123,22 @@ public class seeActivity extends AbstractActivity {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        lm.requestLocationUpdates(GpsProvider, 500, 0, new LocationListener() {
+        lm.requestLocationUpdates(GpsProvider, 10000, 0, new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
                 Position tp = new Position(location);
-                displayView.update(tp);
-//                showMessage(tp.toString());
+//                displayView.updateSource(tp);
+                //showMessage(tp.toString());
             }
 
             @Override
             public void onStatusChanged(String provider, int status, Bundle extras) {
-                showMessage("Gps status：" + provider + " status:" + status);
+//                showMessage("Gps status：" + provider + " status:" + status);
             }
 
             @Override
             public void onProviderEnabled(String provider) {
-                showMessage("Gps enable：" + provider);
+//                showMessage("Gps enable：" + provider);
             }
 
             @Override
@@ -159,15 +162,13 @@ public class seeActivity extends AbstractActivity {
             @Override
             public void onSensorChanged(SensorEvent event) {
                 float[] arr = new float[16];
+                Matrix.setIdentityM(arr, 0);
                 SensorManager.getRotationMatrixFromVector(
                         arr, event.values);
-                displayView.update(arr);
-//                String text = "";
-//                for (int i = 0; i < arr.length; i++) {
-//                    if (i % 4 == 0) {
-//                        text += "\n";
-//                    }
-//                    text += arr[i] + "|";
+                displayView.updateSensorMaxtrix(arr);
+//                String text = "Rotation ";
+//                for (int i = 0; i < event.values.length; i++) {
+//                    text += event.values[i] + "|";
 //                }
 //                showMessage(text);
             }

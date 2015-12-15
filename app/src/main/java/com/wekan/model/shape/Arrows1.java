@@ -1,8 +1,11 @@
 package com.wekan.model.shape;
 
+import android.opengl.GLES20;
+
+import com.wekan.Interface.AbstractShap1;
 import com.wekan.utils.PaintUtil;
 
-public class Arrows extends AbstractShap {
+public class Arrows1 extends AbstractShap1 {
     final float headPosition[] =
             {
                     // head up face
@@ -142,15 +145,37 @@ public class Arrows extends AbstractShap {
                     1.0f, 0.0f, 0.0f, 1.0f,
                     1.0f, 0.0f, 0.0f, 1.0f,
             };
+    private float[] position = null;
+    private float[] color = null;
 
-    public Arrows() {
-        this(1.0f, null);
+    public Arrows1() {
+        this(new float[0], new float[0]);
     }
 
-    public Arrows(float rate, float[] tranVector) {
+    public Arrows1(float[] otherPosition, float[] otherColor) {
         super();
-        mVertexes = PaintUtil.mergeArr(headPosition, PaintUtil.getVertexArrRectAll(tailPosition, 0));
-        mColors = PaintUtil.mergeArr(headColor, tailColor);
-        PaintUtil.transformVertex(mVertexes, rate, tranVector);
+        setViewMatrix();
+        initProgram();
+        GLES20.glUseProgram(mProgram);
+        float[] position = PaintUtil.mergeArr(headPosition, PaintUtil.getVertexArrRectAll(tailPosition, 0));
+        float[] color = PaintUtil.mergeArr(headColor, tailColor);
+        if (null != otherPosition && null != otherColor) {
+            position = PaintUtil.mergeArr(position, otherPosition);
+            color = PaintUtil.mergeArr(color, otherColor);
+        }
+        setVertex(position);
+        setColor(color);
     }
+
+    @Override
+    public void draw() {
+        this.draw(position, color);
+    }
+
+    public void draw(float[] position, float[] color) {
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+        super.draw();
+    }
+
+
 }

@@ -21,7 +21,7 @@ public class LogView extends ScrollView implements View.OnTouchListener {
     private Button btn1;
     private final int MAX_LINES = 1000;
     private int maxHeight = 300;
-    private int minHeight = 30;
+    private int minHeight = 40;
     private boolean unfold = false;
 
     public void init(Context context) {

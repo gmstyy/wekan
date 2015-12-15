@@ -1,4 +1,4 @@
-package com.wekan.Interface;
+package com.wekan.utils;
 
 import android.opengl.GLES20;
 import android.opengl.Matrix;
@@ -10,9 +10,9 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 /**
- * Created by yuanyuan06 on 2015/12/11.
+ * Created by yuanyuan06 on 2015/12/13.
  */
-public abstract class AbstractShap {
+public class Opengl3DHelper {
     protected final String vertexShaderCode =
             "uniform mat4 u_MVPMatrix;      \n"        // A constant representing the combined model/view/projection matrix.
 
@@ -62,12 +62,15 @@ public abstract class AbstractShap {
     protected FloatBuffer positionBuffer;
     protected FloatBuffer colorBuffer;
 
-    public AbstractShap() {
+    public Opengl3DHelper() {
         GLES20.glEnable(GLES20.GL_CULL_FACE);
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         Matrix.setIdentityM(mModelMatrix, 0);
         Matrix.setIdentityM(mViewMatrix, 0);
         Matrix.setIdentityM(mProjectionMatrix, 0);
+        setViewMatrix();
+        initProgram();
+        GLES20.glUseProgram(mProgram);
     }
 
     public int initProgram() {
@@ -131,7 +134,7 @@ public abstract class AbstractShap {
         }
     }
 
-    protected void setVertex(final float[] data) {
+    public void setVertex(final float[] data) {
         vertexCount = data.length / POSITION_DATA_SIZE;
         positionBuffer = ByteBuffer.allocateDirect(data.length * BYTES_PER_FLOAT)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
@@ -143,7 +146,7 @@ public abstract class AbstractShap {
 
     }
 
-    protected void setColor(final float[] data) {
+    public void setColor(final float[] data) {
         colorBuffer = ByteBuffer.allocateDirect(data.length * BYTES_PER_FLOAT)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
         colorBuffer.put(data).position(0);
@@ -155,7 +158,7 @@ public abstract class AbstractShap {
 
     }
 
-    protected void setBackGroudColor(float[] color) {
+    public void setBackGroudColor(float[] color) {
         mBackGroudColor = color;
     }
 
@@ -167,9 +170,15 @@ public abstract class AbstractShap {
 
     public void setModelMatrix(float[] modelMatrix) {
         // 获取指向fragment shader的成员vColor的handle
-//        mModelMatrix = modelMatrix;
-        Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.multiplyMM(mModelMatrix, 0, modelMatrix, 0, mModelMatrix, 0);
+        mModelMatrix = modelMatrix;
+//        Matrix.setIdentityM(mModelMatrix, 0);
+//        Matrix.multiplyMM(mModelMatrix, 0, modelMatrix, 0, mModelMatrix, 0);
+    }
+
+    private float rotationVector;
+
+    public void rotate(float[] rotationVector) {
+        rotationVector = rotationVector;
     }
 
     public void setProjectionMatrix(int width, int height) {
@@ -178,14 +187,11 @@ public abstract class AbstractShap {
         final float right = ratio;
         final float bottom = -1.0f;
         final float top = 1.0f;
-        final float near = 1.0f;
-        final float far = 10.0f;
+        final float near = 1f;
+        final float far = 200f;
 //        Matrix.orthoM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
         Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
-    }
-
-    public void loadMatrix(float[] matrix) {
-        Matrix.multiplyMM(mModelMatrix, 0, matrix, 0, mModelMatrix, 0);
+        GLES20.glViewport(0, 0, width, height);
     }
 
     public void reset() {
@@ -216,6 +222,7 @@ public abstract class AbstractShap {
     }
 
     public void draw() {
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         //在draw方法里设置点的原因是因为javagc会回收openGl的内存，导致定点数据不可用
         if (null != mBackGroudColor) {
             GLES20.glClearColor(mBackGroudColor[0], mBackGroudColor[1], mBackGroudColor[2], mBackGroudColor[3]);
@@ -226,6 +233,8 @@ public abstract class AbstractShap {
         Matrix.multiplyMM(mMVPMatrix, 0, mViewMatrix, 0, mModelMatrix, 0);
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mMVPMatrix, 0);
         GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mMVPMatrix, 0);
+
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount);
     }
+
 }

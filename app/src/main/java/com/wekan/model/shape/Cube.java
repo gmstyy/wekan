@@ -1,9 +1,6 @@
 package com.wekan.model.shape;
 
-import android.opengl.GLES20;
-import android.opengl.Matrix;
-
-import com.wekan.Interface.AbstractShap;
+import com.wekan.utils.PaintUtil;
 
 /**
  * Created by yuanyuan06 on 2015/12/11.
@@ -110,25 +107,16 @@ public class Cube extends AbstractShap {
                     1.0f, 0.0f, 1.0f, 1.0f,
                     1.0f, 0.0f, 1.0f, 1.0f
             };
-    final float[] backGroudColor = null;//{1.0f, 1.0f, 1.0f, 0.0f};
 
     public Cube() {
+        this(1.0f, null);
+    }
+
+    public Cube(float rate, float[] tranVector) {
         super();
-        setViewMatrix();
-        initProgram();
-        GLES20.glUseProgram(mProgram);
-        setVertex(position);
-        setColor(color);
-        setBackGroudColor(backGroudColor);
+        mVertexes = position;
+        mColors = color;
+        PaintUtil.transformVertex(mVertexes, rate, tranVector);
     }
 
-    @Override
-    public void draw() {
-        this.draw(position, color);
-    }
-
-    public void draw(float[] position, float[] color) {
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-        super.draw();
-    }
 }

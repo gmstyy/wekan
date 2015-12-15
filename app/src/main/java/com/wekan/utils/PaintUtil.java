@@ -1,15 +1,20 @@
 package com.wekan.utils;
 
-import android.content.Context;
-
-import com.wekan.Interface.AbstractShap;
-
 import java.util.Arrays;
 
 /**
  * Created by yuanyuan06 on 2015/12/13.
  */
 public class PaintUtil {
+    public static float[] transformVertex(float[] vertexes, float rate, float[] tranVector) {
+        if (null != tranVector && tranVector.length >= 3) {
+            for (int i = vertexes.length - 1; i >= 0; i--) {
+                vertexes[i] = vertexes[i] * rate + tranVector[i % 3];
+            }
+        }
+        return vertexes;
+    }
+
     public static float[] getVertexArrRect(float[] vertexArr, int offset) {
         float[] rt = new float[18];
         for (int i = 0; i < 9; i++) {
