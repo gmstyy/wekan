@@ -6,6 +6,7 @@ import java.util.Arrays;
  * Created by yuanyuan06 on 2015/12/13.
  */
 public class PaintUtil {
+
     public static float[] transformVertex(float[] vertexes, float rate, float[] tranVector) {
         if (null != tranVector && tranVector.length >= 3) {
             for (int i = vertexes.length - 1; i >= 0; i--) {

@@ -182,13 +182,13 @@ public class Opengl3DHelper {
     }
 
     public void setProjectionMatrix(int width, int height) {
-        final float ratio = (float) width / height;
-        final float left = -ratio;
-        final float right = ratio;
-        final float bottom = -1.0f;
-        final float top = 1.0f;
+        final float ratio = (float) height / width;
+        final float left = -1.0f;
+        final float right = 1.0f;
+        final float bottom = -ratio;
+        final float top = ratio;
         final float near = 1f;
-        final float far = 200f;
+        final float far = 2000000f;
 //        Matrix.orthoM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
         Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
         GLES20.glViewport(0, 0, width, height);
@@ -203,7 +203,7 @@ public class Opengl3DHelper {
         // Position the eye behind the origin.
         final float eyeX = 0.0f;
         final float eyeY = 0.0f;
-        final float eyeZ = 5.f;
+        final float eyeZ = 5f;
 
         // We are looking toward the distance
         final float lookX = 0.0f;

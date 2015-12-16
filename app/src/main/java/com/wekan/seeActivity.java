@@ -123,17 +123,17 @@ public class seeActivity extends AbstractActivity {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        lm.requestLocationUpdates(GpsProvider, 10000, 0, new LocationListener() {
+        lm.requestLocationUpdates(GpsProvider, 100, 0, new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
                 Position tp = new Position(location);
-//                displayView.updateSource(tp);
-                //showMessage(tp.toString());
+                displayView.updateSource(tp);
+                showMessage(tp.toString());
             }
 
             @Override
             public void onStatusChanged(String provider, int status, Bundle extras) {
-//                showMessage("Gps status：" + provider + " status:" + status);
+                showMessage("Gps status：" + provider + " status:" + status);
             }
 
             @Override
@@ -146,7 +146,9 @@ public class seeActivity extends AbstractActivity {
                 showMessage("Gps disable：" + provider);
             }
         });
-        showMessage("provider:" + GpsProvider + " " + new Position(lm.getLastKnownLocation(GpsProvider)).toString());
+        Position p = new Position(lm.getLastKnownLocation(GpsProvider));
+        displayView.updateSource(p);
+        showMessage("LBSCtreat:" + GpsProvider + ":" + p.toString());
     }
 
     /**

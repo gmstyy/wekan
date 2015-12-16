@@ -22,7 +22,10 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public class WekanView extends GLSurfaceView implements GLSurfaceView.Renderer {
 
-    private Opengl3DHelper helper;
+    private Opengl3DHelper mHelper;
+    private Arrows mArrows;
+    private float[] mVertex;
+    private float[] mColor;
     private Position mSourcePosition;
     private Position mTargetPosition;
     private float[] mRotationMatrix = new float[16];
@@ -31,12 +34,12 @@ public class WekanView extends GLSurfaceView implements GLSurfaceView.Renderer {
     public void init(Position sourcePosition, Position targetPisition) {
 //        Renderer render = new CubeDemo();
 //        setRenderer(render);
-//        this.setZOrderOnTop(true);//设置画布  背景透明
         this.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
         this.getHolder().setFormat(PixelFormat.TRANSLUCENT);
         setRenderer(this);
         setRenderMode(RENDERMODE_WHEN_DIRTY);
         Matrix.setIdentityM(mRotationMatrix, 0);
+        mArrows = new Arrows();
         updateSource(sourcePosition);
         updateTarget(targetPisition);
     }
@@ -120,13 +123,29 @@ public class WekanView extends GLSurfaceView implements GLSurfaceView.Renderer {
     }
 
     private void genDirectionRotationMat() {
-        if (null != mSourcePosition && null != mTargetPosition) {
-            genRotationMatrixBy2Vector(new double[]{0.0d, 1.0d, 0.0d}, getPostionVector(mSourcePosition, mTargetPosition));
+        if (null == mSourcePosition || null == mTargetPosition) {
+            return;
         }
+        genRotationMatrixBy2Vector(new double[]{0.0d, 1.0d, 0.0d}, getPostionVector(mSourcePosition, mTargetPosition));
+//        float dis = dis2coordinateUnit(getDistance(mSourcePosition, mTargetPosition));
+        float dis = dis2coordinateUnit(0.5);
+        showMessage("distance:" + dis);
+        Cube cube = new Cube(dis/10, new float[]{0.0f, dis, 0.0f});
+        mVertex = PaintUtil.mergeArr(mArrows.getVertexes(), cube.getVertexes());
+        mColor = PaintUtil.mergeArr(mArrows.getColors(), cube.getColors());
+        if (null == mHelper) {
+            return;
+        }
+        mHelper.setVertex(mVertex);
+        mHelper.setColor(mColor);
+    }
+
+    private float dis2coordinateUnit(double dis) {
+        return new Double(dis).floatValue() * 5000;
     }
 
     public void updateSensorMaxtrix(float[] sensorMatrix) {
-        if (null == helper) return;
+        if (null == mHelper) return;
         float[] tmp = new float[16];
 //        if (null != mRotationMatrix) {
 //            Matrix.setIdentityM(tmp, 0);
@@ -134,21 +153,21 @@ public class WekanView extends GLSurfaceView implements GLSurfaceView.Renderer {
 //        } else {
         tmp = sensorMatrix;
 //        }
-        helper.setModelMatrix(tmp);
+        mHelper.setModelMatrix(tmp);
         requestRender();
 //        cube.loadMatrix(rotationMatrix);
     }
 
     public void reset() {
-        if (null == helper) return;
-        helper.reset();
+        if (null == mHelper) return;
+        mHelper.reset();
         requestRender();
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        if (null == helper) return;
-        helper.draw();
+        if (null == mHelper) return;
+        mHelper.draw();
     }
 
     @Override
@@ -167,19 +186,16 @@ public class WekanView extends GLSurfaceView implements GLSurfaceView.Renderer {
         setEGLContextClientVersion(2);
 //        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         setEGLConfigChooser(true);
+
     }
 
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        helper = new Opengl3DHelper();
-        Cube cube = new Cube(0.5f, new float[]{0.0f, 5.0f, 0.0f});
-        Arrows arrows = new Arrows();
-        float[] vertexes = PaintUtil.mergeArr(arrows.getVertexes(), cube.getVertexes());
-        float[] colors = PaintUtil.mergeArr(arrows.getColors(), cube.getColors());
-        helper.setVertex(vertexes);
-        helper.setColor(colors);
-        helper.setProjectionMatrix(getWidth(), getHeight());
+        mHelper = new Opengl3DHelper();
+        mHelper.setVertex(mVertex);
+        mHelper.setColor(mColor);
+        mHelper.setProjectionMatrix(getWidth(), getHeight());
     }
 
     private void showMessage(String message) {
