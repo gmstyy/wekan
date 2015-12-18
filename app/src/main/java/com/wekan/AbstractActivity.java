@@ -16,7 +16,7 @@ public class AbstractActivity extends AppCompatActivity {
     protected LogView logView;
     public static final String MESSAGE_HANDLE = "HANDLE_MESSAGE";
     protected Handler mHandler = new Handler() {
-        public void handleMessage(android.os.Message msg) {
+        public void handleMessage(Message msg) {
             if (null != logView) {
                 String message = msg.getData().getString(MESSAGE_HANDLE);
                 logView.showMessage(message);

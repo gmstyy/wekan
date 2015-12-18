@@ -25,7 +25,7 @@ import com.wekan.view.WekanView;
 /**
  * A login screen that offers login via email/password.
  */
-public class seeActivity extends AbstractActivity {
+public class SeeActivity1 extends AbstractActivity {
 
     /**
      * Id to identity READ_CONTACTS permission request.
