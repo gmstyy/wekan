@@ -3,6 +3,7 @@ package com.wekan.utils;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
+import com.wekan.AbstractActivity;
 import com.wekan.model.MsgException;
 
 import java.nio.ByteBuffer;
@@ -61,8 +62,10 @@ public class Opengl3DHelper {
     protected float[] mBackGroudColor = new float[4];
     protected FloatBuffer positionBuffer;
     protected FloatBuffer colorBuffer;
+    protected AbstractActivity mActivity;
 
-    public Opengl3DHelper() {
+    public Opengl3DHelper(AbstractActivity activity) {
+        this.mActivity = activity;
         GLES20.glEnable(GLES20.GL_CULL_FACE);
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         Matrix.setIdentityM(mModelMatrix, 0);
@@ -115,8 +118,8 @@ public class Opengl3DHelper {
             GLES20.glAttachShader(mProgram, vertexShaderHandle);
             GLES20.glAttachShader(mProgram, fragmentShaderHandle);
 
-            GLES20.glBindAttribLocation(mProgram, 0, "a_Position");
-            GLES20.glBindAttribLocation(mProgram, 1, "a_Color");
+//            GLES20.glBindAttribLocation(mProgram, 0, "a_Position");
+//            GLES20.glBindAttribLocation(mProgram, 1, "a_Color");
 
             GLES20.glLinkProgram(mProgram);
 
@@ -134,28 +137,23 @@ public class Opengl3DHelper {
         }
     }
 
-    public void setVertex(final float[] data) {
-        vertexCount = data.length / POSITION_DATA_SIZE;
+
+    public void setVertex(float[] data) {
+        if (null == data) {
+            return;
+        }
         positionBuffer = ByteBuffer.allocateDirect(data.length * BYTES_PER_FLOAT)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
         positionBuffer.put(data).position(0);
-        mPositionHandle = GLES20.glGetAttribLocation(mProgram, "a_Position");
-        positionBuffer.position(0);
-        GLES20.glEnableVertexAttribArray(mPositionHandle);
-        GLES20.glVertexAttribPointer(mPositionHandle, POSITION_DATA_SIZE, GLES20.GL_FLOAT, false, vertexStride, positionBuffer);
-
     }
 
     public void setColor(final float[] data) {
+        if (null == data) {
+            return;
+        }
         colorBuffer = ByteBuffer.allocateDirect(data.length * BYTES_PER_FLOAT)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
         colorBuffer.put(data).position(0);
-        // 获取指向fragment shader的成员vColor的handle
-
-//        mColorHandle = GLES20.glGetUniformLocation(mProgram,"v_Color");
-//        GLES20.glUniform4fv(mColorHandle, 1, data, 0);
-        mColorHandle = GLES20.glGetAttribLocation(mProgram, "a_Color");
-
     }
 
     public void setBackGroudColor(float[] color) {
@@ -222,11 +220,17 @@ public class Opengl3DHelper {
     }
 
     public void draw() {
+        if (null == positionBuffer || null == colorBuffer) {
+            showMessage("顶点为空");
+            return;
+        }
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         //在draw方法里设置点的原因是因为javagc会回收openGl的内存，导致定点数据不可用
         if (null != mBackGroudColor) {
             GLES20.glClearColor(mBackGroudColor[0], mBackGroudColor[1], mBackGroudColor[2], mBackGroudColor[3]);
         }
+        mPositionHandle = GLES20.glGetAttribLocation(mProgram, "a_Position");
+        mColorHandle = GLES20.glGetAttribLocation(mProgram, "a_Color");
         renderData(positionBuffer, mPositionHandle, POSITION_DATA_SIZE, vertexStride);
         renderData(colorBuffer, mColorHandle, COLOR_DATA_SIZE, vertexStride);
         Matrix.setIdentityM(mMVPMatrix, 0);
@@ -234,7 +238,11 @@ public class Opengl3DHelper {
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mMVPMatrix, 0);
         GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mMVPMatrix, 0);
 
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, positionBuffer.remaining() / POSITION_DATA_SIZE);
+    }
+
+    public void showMessage(String msg) {
+        mActivity.showMessage("OPENGL", msg);
     }
 
 }

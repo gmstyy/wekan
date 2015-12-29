@@ -9,7 +9,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:weightSum="1"
-    tools:context=".SeeActivity1">
+    tools:context=".SeeActivity">
 
 
     <com.wekan.view.LogView
@@ -19,52 +19,69 @@
         android:layout_gravity="center_horizontal" />
 
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:orientation="horizontal">
 
-        <EditText
-            android:id="@+id/tp.x"
-            android:layout_width="110dp"
-            android:layout_height="wrap_content"
-            android:layout_column="11"
-            android:ems="10"
-            android:focusable="false"
-            android:hint="x"
-            android:inputType="numberDecimal" />
+        <!--<EditText-->
+        <!--android:id="@+id/tp.x"-->
+        <!--android:layout_width="110dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_column="11"-->
+        <!--android:ems="10"-->
+        <!--android:focusable="false"-->
+        <!--android:hint="x"-->
+        <!--android:inputType="numberDecimal" />-->
 
-        <EditText
-            android:id="@+id/tp.y"
-            android:layout_width="110dp"
-            android:layout_height="wrap_content"
-            android:layout_column="12"
-            android:ems="10"
-            android:focusable="false"
-            android:hint="y"
-            android:inputType="numberDecimal" />
+        <!--<EditText-->
+        <!--android:id="@+id/tp.y"-->
+        <!--android:layout_width="110dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_column="12"-->
+        <!--android:ems="10"-->
+        <!--android:focusable="false"-->
+        <!--android:hint="y"-->
+        <!--android:inputType="numberDecimal" />-->
 
-        <EditText
-            android:id="@+id/tp.z"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:layout_column="14"
-            android:ems="10"
-            android:focusable="false"
-            android:hint="z"
-            android:inputType="numberDecimal" />
+        <!--<EditText-->
+        <!--android:id="@+id/tp.z"-->
+        <!--android:layout_width="80dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_column="14"-->
+        <!--android:ems="10"-->
+        <!--android:focusable="false"-->
+        <!--android:hint="z"-->
+        <!--android:inputType="numberDecimal" />-->
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_weight="90"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:paddingTop="10dp" />
 
         <Button
             android:id="@+id/resetBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="45dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
             android:layout_gravity="center_horizontal"
             android:text="R" />
-    </LinearLayout>
+
+    </RelativeLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
+        <com.wekan.view.CameraSurfaceView
+            android:id="@+id/camera_view"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center_horizontal" />
 
         <com.wekan.view.WekanView
             android:id="@+id/display_view"
@@ -72,11 +89,6 @@
             android:layout_height="fill_parent"
             android:layout_gravity="center_horizontal" />
 
-        <com.wekan.view.CameraSurfaceView
-            android:id="@+id/camera_view"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_gravity="center_horizontal" />
 
     </FrameLayout>
 
