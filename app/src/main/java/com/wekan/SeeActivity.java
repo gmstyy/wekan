@@ -259,7 +259,7 @@ public class SeeActivity extends AbstractActivity implements BDLocationListener,
                 degreeN[2] = event.values[2];
                 break;
             case Sensor.TYPE_ROTATION_VECTOR:
-                showMessage("geoRotationVector: " + event.values[0] + " " + event.values[1] + " " + event.values[2]);
+//                showMessage("geoRotationVector: " + event.values[0] + " " + event.values[1] + " " + event.values[2]);
                 float[] arr = new float[16];
                 Matrix.setIdentityM(arr, 0);
                 SensorManager.getRotationMatrixFromVector(
@@ -271,8 +271,7 @@ public class SeeActivity extends AbstractActivity implements BDLocationListener,
                 float degreeY = new Double(values1[2] * 180.0f / Math.PI).floatValue();
                 if (null != degreeN && Math.abs(degreeX) < 10) {
                     degreeD = degreeZ - degreeN[0];
-//                    showMessage("init " + degreeD + " degreeN:" + degreeN[0] + " " + degreeN[1] + " " + degreeN[2] + " degreeS:" + degreeZ + " " + degreeX + " " + degreeY);
-                    showMessage(String.format("init %.2f degreeN:%.2f %.2f %.2f degreeS:%.2f %.2f %.2f", degreeD, degreeN[0], degreeN[1], degreeN[2], degreeZ, degreeX, degreeY));
+//                    showMessage(String.format("init %.2f degreeN:%.2f %.2f %.2f degreeS:%.2f %.2f %.2f", degreeD, degreeN[0], degreeN[1], degreeN[2], degreeZ, degreeX, degreeY));
                 }
                 displayView.updateSensorMaxtrix(arr, degreeD);
                 break;

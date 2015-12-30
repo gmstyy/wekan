@@ -1,9 +1,14 @@
 package com.wekan;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Point;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -13,9 +18,16 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.baidu.location.BDLocation;
+import com.baidu.location.BDLocationListener;
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
+import com.baidu.location.Poi;
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
+import com.baidu.mapapi.map.MapPoi;
 import com.baidu.mapapi.map.MapView;
+import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.overlayutil.PoiOverlay;
 import com.baidu.mapapi.search.core.PoiInfo;
 import com.baidu.mapapi.search.core.SearchResult;
@@ -24,12 +36,15 @@ import com.baidu.mapapi.search.poi.PoiCitySearchOption;
 import com.baidu.mapapi.search.poi.PoiDetailResult;
 import com.baidu.mapapi.search.poi.PoiResult;
 import com.baidu.mapapi.search.poi.PoiSearch;
+import com.wekan.model.Position;
 import com.wekan.view.LogView;
+
+import java.util.List;
 
 /**
  * A login screen that offers login via email/password.
  */
-public class MapActivity extends AbstractActivity implements OnGetPoiSearchResultListener {
+public class MapActivity extends AbstractActivity {
     MapView mMapView;
     BaiduMap mBaiduMap;
     EditText mSearchWord;
@@ -38,6 +53,9 @@ public class MapActivity extends AbstractActivity implements OnGetPoiSearchResul
     TextView mPoiMsg;
     Button mSeeBtn;
     RelativeLayout mMsgBar;
+    String mCurrentCity = "北京";
+    LocationClient mLocationClient;
+    MapListener mapListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +74,8 @@ public class MapActivity extends AbstractActivity implements OnGetPoiSearchResul
         mSeeBtn = (Button) findViewById(R.id.seeBtn);
         initMapView();
         initPoi();
+        initGps();
+        MapListener mapListener = new MapListener();
         SearchListener sl = new SearchListener();
         mButton.setOnClickListener(sl);
         mSearchWord.setOnEditorActionListener(sl);
@@ -72,25 +92,9 @@ public class MapActivity extends AbstractActivity implements OnGetPoiSearchResul
 
     public void initPoi() {
         mPoiSearch = PoiSearch.newInstance();
-        mPoiSearch.setOnGetPoiSearchResultListener(this);
+        mPoiSearch.setOnGetPoiSearchResultListener(mapListener);
     }
 
-    @Override
-    public void onGetPoiResult(PoiResult poiResult) {
-        if (poiResult == null || poiResult.error == SearchResult.ERRORNO.RESULT_NOT_FOUND) {
-            showMessage("Map", "poiResult is null");
-            return;
-        }
-        showMessage("Map", "poiResult:" + poiResult.getAllPoi());
-        if (poiResult.error == SearchResult.ERRORNO.NO_ERROR) {
-            displayResult(poiResult);
-        }
-    }
-
-    @Override
-    public void onGetPoiDetailResult(PoiDetailResult poiDetailResult) {
-
-    }
 
     private void displayResult(final PoiResult result) {
         mBaiduMap.clear();
@@ -163,6 +167,68 @@ public class MapActivity extends AbstractActivity implements OnGetPoiSearchResul
         mMapView.onPause();
     }
 
+    private void initGps() {
+        mLocationClient = new LocationClient(getApplicationContext());     //声明LocationClient类
+        mLocationClient.registerLocationListener(mapListener);    //注册监听函数
+        LocationClientOption option = new LocationClientOption();
+        option.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);//可选，默认高精度，设置定位模式，高精度，低功耗，仅设备
+        option.setCoorType("bd09ll");//可选，默认gcj02，设置返回的定位结果坐标系
+        option.setScanSpan(5000);//可选，默认0，即仅定位一次，设置发起定位请求的间隔需要大于等于1000ms才是有效的
+        option.setOpenGps(true);//可选，默认false,设置是否使用gps
+        option.setIgnoreKillProcess(false);//可选，默认false，定位SDK内部是一个SERVICE，并放到了独立进程，设置是否在stop的时候杀死这个进程，默认杀死
+        option.SetIgnoreCacheException(false);//可选，默认false，设置是否收集CRASH信息，默认收集
+        option.setEnableSimulateGps(false);//可选，默认false，设置是否需要过滤gps仿真结果，默认需要
+        mLocationClient.setLocOption(option);
+        mLocationClient.requestLocation();
+        mLocationClient.start();
+    }
+
+
+    public void searchInCity(String word, int pageNum) {
+        mPoiSearch.searchInCity(new PoiCitySearchOption()
+                .city(mCurrentCity)
+                .keyword(word)
+                .pageNum(pageNum).pageCapacity(10));
+    }
+
+    private class MapListener implements OnGetPoiSearchResultListener, BDLocationListener, BaiduMap.OnMapClickListener {
+        @Override
+        public void onReceiveLocation(BDLocation location) {
+            //Receive Location
+            showMessage("Map", "city:" + location.getCity() + " " + mCurrentCity);
+            if (null == location || null == location.getCity()) {
+                return;
+            }
+            mCurrentCity = location.getCity();
+        }
+
+        @Override
+        public void onGetPoiResult(PoiResult poiResult) {
+            if (poiResult == null || poiResult.error == SearchResult.ERRORNO.RESULT_NOT_FOUND) {
+                showMessage("Map", "poiResult is null");
+                return;
+            }
+            showMessage("Map", "poiResult:" + poiResult.getAllPoi());
+            if (poiResult.error == SearchResult.ERRORNO.NO_ERROR) {
+                displayResult(poiResult);
+            }
+        }
+
+        @Override
+        public void onGetPoiDetailResult(PoiDetailResult poiDetailResult) {
+
+        }
+
+        @Override
+        public void onMapClick(LatLng latLng) {
+        }
+
+        @Override
+        public boolean onMapPoiClick(MapPoi mapPoi) {
+            return false;
+        }
+    }
+
     private class SearchListener implements View.OnClickListener, TextView.OnEditorActionListener, View.OnFocusChangeListener {
 
         @Override
@@ -175,10 +241,7 @@ public class MapActivity extends AbstractActivity implements OnGetPoiSearchResul
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(mSearchWord.getWindowToken(), 0);
             showMessage("Map", "word:" + word);
-            mPoiSearch.searchInCity((new PoiCitySearchOption())
-                    .city("北京")
-                    .keyword(word)
-                    .pageNum(10));
+            searchInCity(word, 0);
         }
 
         @Override
